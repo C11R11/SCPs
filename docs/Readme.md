@@ -1,0 +1,1 @@
+El archivo exel contiene los resultados a mano para SCP41 (ver carpeta input)
