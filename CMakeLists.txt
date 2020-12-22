@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16.1)
+project(SCPs)
+set(CMAKE_CXX_STANDARD 17)
+include_directories(include)
+set(HEADERS include/Hello.hpp)
+add_executable(test src/main.cpp src/hello ${HEADERS})
