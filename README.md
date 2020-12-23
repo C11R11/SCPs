@@ -14,6 +14,28 @@ bla
 ## Source
 bla
 
+## CMake
+
+In the root directory run this. (The -Bbuild will put the results into the "build" directory, you can change it)
+
+```
+cmake . -Bbuild
+```
+
 ### Tutorials
 [tutorial level zero](https://www.youtube.com/watch?v=J9pbdFSTGVI)
+
+## Rest
+
+```
+sudo apt-get install libcpprest-dev
+```
+
+[microsoft library](https://github.com/Microsoft/cpprestsdk)
+[Documentation](https://github.com/Microsoft/cpprestsdk/wiki/Getting-Started-Tutorial)
+
+[code](https://github.com/chandanshoun/CPPRestSDK-server/blob/main/CPPRest_Get_Post_RequestResponse.cpp)
+[video](https://www.youtube.com/watch?v=aIkIyL3MXAw&t=169s)
+
+[Article/Tutorial](https://medium.com/@ivan.mejia/modern-c-micro-service-implementation-rest-api-b499ffeaf898)
 
