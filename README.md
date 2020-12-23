@@ -3,6 +3,10 @@ A [datasheet](https://drive.google.com/file/d/1DPyXL8jzvfu6cZT-VOKrIl8oxo5cJX_n/
 # Scp solvers
 [Input files site](http://people.brunel.ac.uk/~mastjjb/jeb/orlib/scpinfo.html)
 
+# List of cpp libraries
+
+https://en.cppreference.com/w/cpp/links/libs
+
 # Repo Structure
 
 ## Docs
