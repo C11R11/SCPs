@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(include)
 set(HEADERS include/Hello.hpp)
 add_executable(test src/main.cpp src/hello ${HEADERS})
+add_executable(scp src/scp.cpp)
+
 
 find_package(cpprestsdk REQUIRED)
 add_executable(server src/server.cpp)
