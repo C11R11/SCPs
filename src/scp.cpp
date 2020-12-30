@@ -3,6 +3,11 @@
 #include <string>
 #include <fstream>
 
+std::ofstream outfile("results.txt");
+int rows = 0;
+int columns = 0;
+std::vector<std::vector<double>> sparse;
+
 void split(const std::string &s, char c,
            std::vector<std::string> &v)
 {
@@ -28,14 +33,16 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
 {
     std::string myText;
 
-    int rows = 0;
-    int columns = 0;
+    // int rows = 0;
+    // int columns = 0;
+    std::string filename = "scp410.txt";
 
     // Read from the text file
     //std::ifstream MyReadFile("../input/scp410.txt");
-    std::ifstream MyReadFile("scp410.txt");
+    std::ifstream MyReadFile(filename);
 
     std::cout << "Reading: -->" << std::endl;
+    outfile << "File: " << filename <<std::endl;
 
     if (MyReadFile.fail())
     {
@@ -52,8 +59,8 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
         rows = stod(v[0]);
         columns = stod(v[1]);
 
-        std::cout << "rows ->" << rows << std::endl;
-        std::cout << "columns ->" << columns << std::endl;
+        outfile << "rows ->" << rows << std::endl;
+        outfile << "columns ->" << columns << std::endl;
 
         int valuesCounter = 0;
 
@@ -82,12 +89,12 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
         while (rowsCount < rows)
         {
             std::getline(MyReadFile, myText);
-            std::cout << "getline ->" << myText << std::endl;
+            //std::cout << "getline ->" << myText << std::endl;
             int sparseCount = stod(myText);
             valuesCounter = 0;
 
-            std::cout << "sparse ->" << sparseCount << std::endl;
-            std::cout << "new row " << std::endl;
+            //std::cout << "sparse ->" << sparseCount << std::endl;
+            //std::cout << "new row " << std::endl;
             std::vector<double> row(columns, 0.0);
 
             // iterate looking for all columns costs
@@ -99,11 +106,11 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
                     std::cout << myText << std::endl;
 
                     v.clear();
-                    std::cout << "row.size" << row.size() << " "
-                              << "v.size" << v.size() << std::endl;
+                    //std::cout << "row.size" << row.size() << " "
+                    //          << "v.size" << v.size() << std::endl;
                     split(myText, ' ', v);
-                    std::cout << "row.size" << row.size() << " "
-                              << "v.size" << v.size() << std::endl;
+                    //std::cout << "row.size" << row.size() << " "
+                   //           << "v.size" << v.size() << std::endl;
 
                     for (int i = 0; i < v.size(); ++i)
                     {
@@ -119,13 +126,48 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
         }
     }
 
+    outfile << std::endl << std::endl;
+
     // Close the file
     MyReadFile.close();
 }
 
-/**
- * 
- */
+void MakeRandomSolution(std::vector<double> &solution)
+{
+    //random solution
+    for (size_t i = 0; i < columns; i++)
+    {
+        solution[i] = rand() % 2;
+    }
+
+}
+
+bool CheckRestrictions(std::vector<double> &solution)
+{
+    bool checkRestrictions = true;
+
+    //Restrictions ChecK
+    outfile << "Checking restrictions..." << std::endl;
+    for (size_t i = 0; i < rows; i++)
+    {
+        double rowSum = 0.0;
+        for (size_t j = 0; j < columns; j++)
+        {
+            rowSum = rowSum + sparse[i][j]*solution[j];
+            
+        }
+
+        if(rowSum == 0)
+        {
+            checkRestrictions = false;
+            outfile << "row " << i+1 << " not covered"<< std::endl;    
+        }
+    }
+
+    return checkRestrictions;
+}
+
+
 int main()
 {
     const int rows = 200;
@@ -176,7 +218,7 @@ int main()
                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
                                  0, 0};
 
-    std::vector<std::vector<double>> sparse;
+    
     //double sparse[rows][columns] = {0};
 
     LoadData(costs, sparse);
@@ -184,7 +226,6 @@ int main()
     //objective function computation
     double objective = 0;
 
-    std::ofstream outfile("test.txt");
 
     //random solution
     // for (size_t i = 0; i < columns; i++)
@@ -192,21 +233,14 @@ int main()
     //     //solution[i] = rand() % 2;
     // }
 
-    outfile << "SOLUTION" << std::endl;
-    for (size_t i = 0; i < columns; i++)
-    {
-        outfile << solution[i] << " ";
-    }
-    outfile << std::endl;
-
     outfile << "COST" << std::endl;
     for (size_t i = 0; i < columns; i++)
     {
         outfile << costs[i] << " ";
     }
-    outfile << std::endl;
+    outfile << std::endl << std::endl;
 
-    outfile << "sparse size" << sparse.size() << std::endl;
+    outfile << "sparse matrix" << std::endl;
     for (size_t i = 0; i < sparse.size(); i++)
     {
         std::vector<double> row;
@@ -219,37 +253,48 @@ int main()
         }
         outfile << std::endl;
     }
-    outfile << std::endl;
+    outfile << std::endl << std::endl;
 
-    outfile << "objective" << std::endl;
-    
-    //Optimal calculation
-    for (size_t columnIndex = 0; columnIndex < columns; columnIndex++)
+    bool checkRestrictions = false;
+    int attempts = 150;
+    int solutionsCounter = 0;
+
+    outfile << "Finding a good solution..." << std::endl << std::endl;
+
+    double bestSolution = 999999999;
+
+    while(solutionsCounter < attempts)
     {
-        objective = objective + costs[columnIndex] * solution[columnIndex];
-        outfile << objective << " ";
+        outfile << "attempt " << solutionsCounter << std::endl;
+        MakeRandomSolution(solution);
+        checkRestrictions = CheckRestrictions(solution);
+
+        objective = 0;
+
+        //Optimal calculation
+        for (size_t columnIndex = 0; columnIndex < columns; columnIndex++)
+        {
+            objective = objective + costs[columnIndex] * solution[columnIndex];
+        }
+
+        outfile << "objective function value: " << objective << std::endl << std::endl;
+
+        outfile << "SOLUTION" << std::endl;
+        for (size_t i = 0; i < columns; i++)
+        {
+            outfile << solution[i] << " ";
+        }
+        outfile << std::endl << std::endl;
+
+        if (bestSolution > objective)
+        {
+            bestSolution = objective;
+        }
+
+        solutionsCounter++;
     }
 
-    bool checkRestrictions = true;
-
-    //Restrictions ChecK
-    outfile << "restriction" << std::endl;
-    for (size_t i = 0; i < rows; i++)
-    {
-        double rowSum = 0.0;
-        for (size_t j = 0; j < columns; j++)
-        {
-            rowSum = rowSum + sparse[i][j]*solution[j];
-            
-        }
-        outfile << "ROW " << i << "rowSum " << rowSum << std::endl;
-
-        if(rowSum == 0)
-        {
-            checkRestrictions = false;
-            outfile << "restrictions FAILED row " << i+1 << std::endl;    
-        }
-    }
+    outfile << "Best solution: " << bestSolution << std::endl << std::endl;
 
     if(checkRestrictions)
     {
@@ -262,8 +307,6 @@ int main()
     }
 
     outfile.close();
-
-    std::cout << "objective: " << objective << std::endl;
 
     return 0;
 }
