@@ -1,3 +1,9 @@
+# Remover espacios extras al final de cada archivo
+
+```
+sed -i 's/\s*$//' scp41.txt
+```
+
 All the data input comes from the [the site](http://people.brunel.ac.uk/~mastjjb/jeb/orlib/scpinfo.html)
 
 # Cómo se lee el archivo (scp410txt)

@@ -2,8 +2,10 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <ctime>
 
-std::ofstream outfile("results.txt");
+
+std::ofstream outfile;
 int rows = 0;
 int columns = 0;
 std::vector<std::vector<double>> sparse;
@@ -23,27 +25,16 @@ void split(const std::string &s, char c,
         if (j == std::string::npos)
         {
             std::string stringFound = s.substr(i, s.length());
-            if (stringFound.compare(" ") != 0)
+            if (stringFound.compare("") != 0)
                 v.push_back(stringFound);
         }
     }
 }
 
-void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &sparse)
+std::string ReadConfig()
 {
     std::string myText;
-
-    // int rows = 0;
-    // int columns = 0;
-    std::string filename = "scp410.txt";
-
-    // Read from the text file
-    //std::ifstream MyReadFile("../input/scp410.txt");
-    std::ifstream MyReadFile(filename);
-
-    std::cout << "Reading: -->" << std::endl;
-    outfile << "File: " << filename <<std::endl;
-
+    std::ifstream MyReadFile("data.config");     
     if (MyReadFile.fail())
     {
         std::cout << "xx/ ";
@@ -53,9 +44,44 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
     {
         //rows and columns
         std::getline(MyReadFile, myText);
+    } 
+
+    return myText;
+}
+
+void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &sparse, std::string file)
+{
+    std::string filename = ReadConfig();
+    outfile = std::ofstream("results_" +  filename);
+
+    outfile << "Reading config.... use file: " << filename << std::endl;
+    std::cout << "Reading config.... use file: " << filename << std::endl;
+
+    std::string myText;
+
+    // Read from the text file
+    //std::ifstream MyReadFile("../input/scp410.txt");
+    std::ifstream MyReadFile(filename);
+
+    std::cout << "Reading: -->" << filename << std::endl;
+    outfile << "File: " << filename <<std::endl;
+
+    if (MyReadFile.fail())
+    {
+        std::cout << "xx/ ";
+    }
+    // Use a while loop together with the getline() function to read the file line by line
+    else
+    {
+        
+        //rows and columns
+        std::getline(MyReadFile, myText);
         std::vector<std::string> v;
         split(myText, ' ', v);
 
+        std::cout << "sacsacsacsacxxa " << myText << std::endl;
+        std::cout << "--> " << v[0] << std::endl;
+        std::cout << "--> " << v[1] << std::endl;
         rows = stod(v[0]);
         columns = stod(v[1]);
 
@@ -106,11 +132,11 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
                     std::cout << myText << std::endl;
 
                     v.clear();
-                    //std::cout << "row.size" << row.size() << " "
-                    //          << "v.size" << v.size() << std::endl;
+                    std::cout << "row.size" << row.size() << " "
+                              << "v.size" << v.size() << std::endl;
                     split(myText, ' ', v);
-                    //std::cout << "row.size" << row.size() << " "
-                   //           << "v.size" << v.size() << std::endl;
+                    std::cout << "row.size" << row.size() << " "
+                              << "v.size" << v.size() << std::endl;
 
                     for (int i = 0; i < v.size(); ++i)
                     {
@@ -119,6 +145,10 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
                         row[stod(v[i]) - 1] = 1;
                         valuesCounter++;
                     }
+                }
+                else
+                {
+                    break;
                 }
             }
             sparse.push_back(row);
@@ -134,6 +164,7 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
 
 void MakeRandomSolution(std::vector<double> &solution)
 {
+    srand((unsigned) time(0));
     //random solution
     for (size_t i = 0; i < columns; i++)
     {
@@ -168,60 +199,24 @@ bool CheckRestrictions(std::vector<double> &solution)
 }
 
 
-int main()
+int InitSolverScp(std::string filename)
 {
     const int rows = 200;
     const int columns = 1000;
 
     std::vector<double> costs; //(columns);
-    std::vector<double> solution{0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
-                                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-                                 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-                                 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-                                 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-                                 0, 0};
+    std::vector<double> solution(columns);
+
+try
+{
+    LoadData(costs, sparse, filename);
+}
+catch(const std::exception& e)
+{
+    std::cerr << e.what() << '\n';
+}
 
     
-    //double sparse[rows][columns] = {0};
-
-    LoadData(costs, sparse);
 
     //objective function computation
     double objective = 0;

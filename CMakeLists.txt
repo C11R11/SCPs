@@ -6,6 +6,9 @@ set(HEADERS include/Hello.hpp)
 add_executable(test src/main.cpp src/hello ${HEADERS})
 add_executable(scp src/scp.cpp)
 
+add_library(scp_solver_lib src/scp_solver)
+add_executable(scp_solver_exe src/scp_solver_main.cpp)
+target_link_libraries(scp_solver_exe PRIVATE scp_solver_lib)
 
 find_package(cpprestsdk REQUIRED)
 add_executable(server src/server.cpp)
