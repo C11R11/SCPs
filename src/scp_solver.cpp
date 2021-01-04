@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 #include <ctime>
-
+#include <sstream>
 
 std::ofstream outfile;
 int rows = 0;
@@ -49,7 +49,7 @@ std::string ReadConfig()
     return myText;
 }
 
-void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &sparse, std::string file)
+std::string LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &sparse)
 {
     std::string filename = ReadConfig();
     outfile = std::ofstream("results_" +  filename);
@@ -160,6 +160,7 @@ void LoadData(std::vector<double> &cost, std::vector<std::vector<double>> &spars
 
     // Close the file
     MyReadFile.close();
+    return filename;
 }
 
 void MakeRandomSolution(std::vector<double> &solution)
@@ -199,17 +200,18 @@ bool CheckRestrictions(std::vector<double> &solution)
 }
 
 
-int InitSolverScp(std::string filename)
+std::vector<std::string> InitSolverScp()
 {
     const int rows = 200;
     const int columns = 1000;
+    std::string filename = "";
 
     std::vector<double> costs; //(columns);
     std::vector<double> solution(columns);
 
 try
 {
-    LoadData(costs, sparse, filename);
+    filename = LoadData(costs, sparse);
 }
 catch(const std::exception& e)
 {
@@ -291,17 +293,38 @@ catch(const std::exception& e)
 
     outfile << "Best solution: " << bestSolution << std::endl << std::endl;
 
+    std::string reportRestriction = "";
+
     if(checkRestrictions)
     {
         outfile << "solution OK" << std::endl;    
+        reportRestriction = "pass";
     }
     else 
     {
         checkRestrictions = false;
         outfile << "restrictions FAILED" << std::endl;    
+        reportRestriction = "error";
     }
 
     outfile.close();
 
-    return 0;
+
+    std::ostringstream sol;
+    for (size_t i = 0; i < columns; i++)
+    {
+        sol << solution[i] << " ";
+    }
+
+    std::vector<std::string> quickReport;
+    quickReport.push_back(filename);
+    quickReport.push_back(std::to_string(columns));
+    quickReport.push_back(std::to_string(rows));
+    quickReport.push_back(std::to_string(bestSolution));
+    quickReport.push_back(reportRestriction);
+    quickReport.push_back("Rand solutions");
+    quickReport.push_back(sol.str());
+
+
+    return quickReport;
 }
