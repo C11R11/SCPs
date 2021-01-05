@@ -310,10 +310,10 @@ catch(const std::exception& e)
     outfile.close();
 
 
-    std::ostringstream sol;
+    std::string sol;
     for (size_t i = 0; i < columns; i++)
     {
-        sol << solution[i] << " ";
+        sol =  sol + std::to_string(solution[i]) + " ";
     }
 
     std::vector<std::string> quickReport;
@@ -323,7 +323,7 @@ catch(const std::exception& e)
     quickReport.push_back(std::to_string(bestSolution));
     quickReport.push_back(reportRestriction);
     quickReport.push_back("Rand solutions");
-    quickReport.push_back(sol.str());
+    quickReport.push_back(sol);
 
 
     return quickReport;
