@@ -34,7 +34,7 @@ void split(const std::string &s, char c,
 std::string ReadConfig()
 {
     std::string myText;
-    std::ifstream MyReadFile("data.config");     
+    std::ifstream MyReadFile("../input/data.config");     
     if (MyReadFile.fail())
     {
         std::cout << "xx/ ";
